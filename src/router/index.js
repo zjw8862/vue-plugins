@@ -1,8 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Index from '@/views'
-import DemoSlider from '@/views/demo_silder'
-import DemoPaging from '@/views/demo_paging'
+import Demo from '@/views/demo'
 
 Vue.use(Router)
 
@@ -14,14 +13,9 @@ export default new Router({
 			component: Index
 		},
 		{
-			path: '/demoslider',
-			name: 'DemoSlider',
-			component: DemoSlider
-		},
-		{
-			path: '/demopaging',
-			name: 'DemoPaging',
-			component: DemoPaging
+			path: '/demo',
+			name: 'Demo',
+			component: Demo
 		}
 	]
 })

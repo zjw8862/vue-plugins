@@ -1,225 +1,232 @@
 <template lang="pug">
-	.ltcon
-		.addbtnbox
-			a.addnewsbtn(@click='getpageData') 添加新闻
-		table(width='100%', border='0', cellspacing='0', cellpadding='0', align='center')
-			thead
-				tr
-					th(scope='col') 新闻标题
-					th(scope='col') 操作人
-					th(scope='col') 上传时间
-					th(scope='col') 操作
-			tbody
-				tr(v-for='list in getpageData')
-					td.newstit
-						p {{list.title}}
-					td {{list.time}}
-					td {{list.editor}}
-					td
-						a.editorbtn(href='editor_news.html') 编辑
-						a.deletebtn(href='#') 删除
-		.turnpage
-			a.prev(href='javascript:;', @click='gettype(-1)')  <
-			.numpage
-				a(href='javascript:;', @click='getcurPage(1)') 1
-				a(href='javascript:;', @click='getcurPage(2)') 2
-				span  共 {{totalnum}}  页
-			a.next(href='javascript:;', @click='gettype(1)') >
+	div
+		.turn-page
+			div.page-num
+				a(
+					href='javascript:;'
+					@click='getType(-1)'
+					:class="{'prev': true,'disabled':curpageNum == 1}"
+				) &lt;
+				.btn-number(v-for="(item,index) in totalpagenum")
+					a(href='javascript:;'
+						@click='pagenumClick(item,index)'
+						v-text="!!item ? item : index+1"
+						:class="{'active': curpageNum == item}"
+					)
+				a(
+					href='javascript:;'
+					@click='getType(1)'
+					:class="{'next': true,'disabled':curpageNum == total}"
+				) &gt;
+			div.skip-page
+				span 到第
+				input(type="text" v-model="skipPageNum")
+				span 页
+				button(@click="confirmSkip") 确定
+			div.total 当前第{{curpageNum}}页/共{{total}}页
+
 </template>
 
 <script>
+/**
+* props total总页数 pagerCount收缩页 currentPage默认第几页
+* 触发事件 prev-click next-click current-change
+*/
 export default {
 	name: 'DemoPaging',
+	props: {
+		total: {
+			type: Number,
+			default: 8
+		},
+		pagerCount: {
+			type: [String, Number],
+			default: ''
+		},
+		currentPage: {
+			type: Number,
+			default: 1
+		}
+	},
+
 	data () {
 		return {
-			listcon: [
-				{
-					title: '双道打浆机双道打浆机双道双道打浆机双道打1',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '双道打浆机双道打浆机双道双道打浆机双道打2',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '双道打浆机双道打浆机双道双道打浆机双道打3',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '双道打浆机双道打浆机双道双道打浆机双道打4',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '双道打浆机双道打浆机双道双道打浆机双道打5',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '双道打浆机双道打浆机双道双道打浆机双道打6',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '标题标题标题标题标题标题标题标题标题标题7',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '标题标题标题标题标题标题标题标题标题标题8',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '标题标题标题标题标题标题标题标题标题标题9',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '标题标题标题标题标题标题标题标题标题标题10',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '标题标题标题标题标题标题标题标题标题标题11',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '标题标题标题标题标题标题标题标题标题标题12',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '标题标题标题标题标题标题标题标题标题标题13',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '标题标题标题标题标题标题标题标题标题标题14',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '标题标题标题标题标题标题标题标题标题标题15',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				},
-				{
-					title: '标题标题标题标题标题标题标题标题标题标题16',
-					editor: '小胖',
-					time: '2015-05-07 10:11'
-				}
-			],
-			type: 0,
-			getValue: '',
-			listnum: '5'
+			curpageNum: this.currentPage,
+			skipPageNum: '',
+			totalpagenum: []
 		}
 	},
-	computed: {
-		getpageData () {
-			let _listnum = this.listnum
-			let curArray = {}
-			curArray[this.type] = []
-			for (let n = this.type * _listnum; n < (this.type + 1) * _listnum && n < this.listcon.length; n++) {
-				curArray[this.type].push(this.listcon[n])
-			}
-			return curArray[this.type]
-		},
-		totalnum () {
-			return Math.ceil(this.listcon.length / this.listnum)
+
+	created () {
+		this.init()
+	},
+
+	watch: {
+		curpageNum: {
+			handler (curVal, oldVal) {
+				this.countPgnumber()
+				this.$emit('current-change', curVal)
+			},
+			immediate: true
 		}
 	},
+
 	methods: {
-		getcurPage (n) {
-			this.type = n - 1
-		},
-		gettype (a) {
-			let step
-			if (a > 0) {
-				step = this.type !== this.totalnum - 1 ? a : 0
-			} else {
-				step = this.type !== 0 ? a : 0
+		init () {
+			if (!!this.pagerCount && (this.pagerCount <= 0 || this.pagerCount >= this.total)) {
+				throw new Error('pagerCount配置错误')
 			}
-			this.type = this.type + step
-			console.log(this.type, 'this.type')
+			this.countPgnumber()
+		},
+
+		// 计算排列页数
+		countPgnumber () {
+			if (!this.pagerCount) {
+				this.totalpagenum = new Array(this.total)
+				for (let i = 0; i < this.totalpagenum.length; i++) {
+					if (!this.totalpagenum[i]) {
+						this.totalpagenum[i] = i + 1
+					}
+				}
+				return
+			}
+			let pageArray = [...this.totalpagenum] || []
+			let first = pageArray.shift() || 1
+			let last = pageArray.pop() || this.total
+			let itemNum = this.pagerCount - 2 // 除首末页外中间项个数
+			// 出现两个省略号的情况
+			if (this.curpageNum >= first + itemNum && this.curpageNum <= last - itemNum) {
+				pageArray = [] // 重新填充首末以外项
+				pageArray[0] = '...'
+				// 循环计算中间几项
+				for (let i = 1; i < itemNum + 1; i++) {
+					pageArray[i] = this.curpageNum - Math.floor(itemNum / 2) + i - 1
+				}
+				pageArray[pageArray.length] = '...'
+				pageArray = [first, ...pageArray, last]
+			}
+
+			// 前面有一个省略号的情况
+			if (last - this.curpageNum < itemNum) {
+				pageArray = []
+				pageArray = new Array(this.pagerCount + 1)
+				pageArray[0] = first
+				pageArray[1] = '...'
+				for (let i = pageArray.length - 1; i > 1; i--) {
+					pageArray[i] = this.total - (itemNum + 2 - i)
+				}
+			}
+
+			// 后面有一个省略号的情况
+			if (this.curpageNum - first < itemNum) {
+				pageArray = []
+				pageArray = new Array(this.pagerCount + 1)
+				pageArray[pageArray.length - 1] = this.total
+				pageArray[pageArray.length - 2] = '...'
+				for (let i = 0; i < pageArray.length; i++) {
+					if (!pageArray[i]) {
+						pageArray[i] = i + 1
+					}
+				}
+			}
+			this.totalpagenum = [...pageArray]
+		},
+
+		// 页数点击事件
+		pagenumClick (item, index) {
+			if (item === '...' && index === 1) {
+				this.curpageNum = this.curpageNum - (this.pagerCount - 2)
+			} else if (item === '...' && index === this.totalpagenum.length - 2) {
+				this.curpageNum = this.curpageNum + (this.pagerCount - 2)
+			} else {
+				this.curpageNum = item
+			}
+		},
+
+		// 上一页下一页切换
+		getType (type) {
+			if (type > 0) {
+				if (this.curpageNum === this.total) return
+				this.curpageNum = this.curpageNum + 1
+				this.$emit('next-click', this.curpageNum)
+			} else {
+				if (this.curpageNum === 1) return
+				this.curpageNum = this.curpageNum - 1
+				this.$emit('prev-click', this.curpageNum)
+			}
+		},
+
+		// 跳页
+		confirmSkip () {
+			if (!this.skipPageNum) return
+			this.curpageNum = this.skipPageNum
+			this.skipPageNum = ''
 		}
 	}
 }
 </script>
 
 <style lang="stylus" scoped>
-
+*{
+	outline none;
+}
+size = 30px
 a {
 	text-decoration: none;
 	font-size: 14px;
 	color: #2b2b2b;
 }
-.ltcon {
-	margin: 30px 50px;
-	padding: 50px;
-	table {
-		tr {
-			th {
-				background: #dddddd;
-				height: 35px;
-				line-height: 35px;
-				font-size: 14px;
-			}
-		}
-		tbody {
-			tr {
-				td {
-					line-height: 24px;
-					border-bottom: 1px dashed #dfdfdf;
-					padding: 5px 0;
-					text-align: center;
-					a {
-						color: #000;
-						&:hover {
-							color: #707070;
-						}
-						&.editorbtn {
-							display: inline-block;
-							height: 28px;
-							width: 30px;
-							line-height: 28px;
-							padding-left: 26px;
-							margin-right: 20px;
-						}
-						&.deletebtn {
-							display: inline-block;
-							height: 28px;
-							width: 30px;
-							line-height: 28px;
-							padding-left: 26px;
-						}
-					}
-					&.newstit {
-						text-align: left;
-						padding-left: 25px;
-					}
-				}
-			}
-		}
-	}
-}
-.turnpage {
+.turn-page {
 	text-align: center;
 	margin-top: 20px;
-	a {
+	.page-num{
 		display: inline-block;
-		width: 30px;
-		height: 30px;
-		line-height: 30px;
-		border: 1px solid #cccccc;
-		border-radius: 4px;
-		text-align: center;
+		.btn-number {
+			display: inline-block;
+		}
+		a {
+			display: inline-block;
+			width: size;
+			height: size;
+			line-height: size;
+			border: 1px solid #cccccc;
+			border-radius: 3px;
+			text-align: center;
+			margin:0 5px;
+			&.active{
+				color:red;
+			}
+			&.disabled{
+				background: #e4e4e4;
+				border: 1px solid #e4e4e4;
+			}
+		}
 	}
-	.numpage {
+	.skip-page{
+		display: inline-block;
+		margin: 0 5px;
+		input{
+			display: inline-block;
+			padding 0 8px
+			text-align center
+			width: size*1.2;
+			height: size;
+			border-radius: 3px;
+			margin: 0 5px;
+			border: 1px solid #cccccc;
+		}
+		button{
+			width: 50px;
+			height: size;
+			border-radius: 4px;
+			margin: 0 5px;
+			color:#fff;
+			border: none;
+			background: #00a4ec;
+			cursor pointer
+		}
+	}
+	.total{
 		display: inline-block;
 	}
 }
