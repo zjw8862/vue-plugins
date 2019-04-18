@@ -64,6 +64,7 @@ export default {
 	watch: {
 		curpageNum: {
 			handler (curVal, oldVal) {
+				// 监听当前页数变化 触发重新计算排列页数
 				this.countPgnumber()
 				this.$emit('current-change', curVal)
 			},
@@ -132,7 +133,7 @@ export default {
 			this.totalpagenum = [...pageArray]
 		},
 
-		// 页数点击事件
+		// 页数点击事件 点击省略号切换所有中间项（相当于中间项翻页）
 		pagenumClick (item, index) {
 			if (item === '...' && index === 1) {
 				this.curpageNum = this.curpageNum - (this.pagerCount - 2)
