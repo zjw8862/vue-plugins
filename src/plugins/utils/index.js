@@ -1,1 +1,3 @@
-export { default as dater } from './dater.js'
+import dater from './dater.js'
+
+export default {dater}

@@ -1,13 +1,20 @@
 <template>
 	<div>
-		<Slider :sliderdata="slider1" v-model= "value1" ></Slider>
-		<span>{{value1}}</span>
-		<Slider :sliderdata="slider2" v-model= "value2" ></Slider>
-		<span>{{value2}}</span>
-		<Slider :sliderdata="slider3" v-model= "value3" ></Slider>
-		<span>{{value3}}</span>
+		<div class="tab-box">
+			<div class="tab-title-box">
+				<div class="tab-title">Slider</div>
+				<div class="tab-title">Paging</div>
+			</div>
+			<div class="tab-content-box">
+				<div class="tab-content">
+					<Slider :sliderdata="slider2" v-model= "value2" ></Slider>
+				</div>
+				<div class="tab-content">
+					<Paging :total="12" :pagerCount="5" :currentPage= "2"></Paging>
+				</div>
+			</div>
+		</div>
 
-		<Paging :total="12" :pagerCount="5" :currentPage= "2"></Paging>
 	</div>
 </template>
 
@@ -16,6 +23,7 @@ import utils from '@/plugins/utils'
 import Slider from '@/components/slider'
 import Paging from '@/components/paging'
 console.log(utils, 'utils')
+
 export default {
 	name: 'Demo',
 	components: {
@@ -53,13 +61,20 @@ export default {
 }
 </script>
 
-<style>
-#app {
+<style lang="stylus">
+#app
 	font-family: 'Avenir', Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	text-align: center;
 	color: #2c3e50;
 	margin-top: 60px;
-}
+
+.tab-box
+	display flex
+	justify-content space-between
+	.tab-title-box
+		width 100px
+	.tab-title
+		line-height 40px
 </style>
